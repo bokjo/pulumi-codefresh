@@ -65,7 +65,7 @@ steps:
       - cf_export GOOGLE_APPLICATION_CREDENTIALS
       # This modifies gcp.ts to produce a kubeconfig that is compatible with a gcloud-free environment we are using in the Codefresh runner
       # and it sets up node modules for the cluster code.
-      - if [[ $PWD =~ k8s ]] ; then  cd ../k8s-ts-cluster ; sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts ; npm install ; fi ;
+      - sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts
   # Stand up the stack for this pipeline
   deployStack:
     stage: deploy
