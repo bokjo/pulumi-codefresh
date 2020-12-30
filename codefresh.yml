@@ -66,6 +66,11 @@ steps:
       # This modifies gcp.ts to produce a kubeconfig that is compatible with a gcloud-free environment we are using in the Codefresh runner
       # and it sets up node modules for the cluster code.
       - sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts
+
+      # make the codefresh cluster add and remove scripts executable
+      - chmod +x ./codefresh_add_cluster.sh
+      - chmod +x ./codefresh_remove_cluster.sh
+
   # Stand up the stack for this pipeline
   deployStack:
     stage: deploy
@@ -88,7 +93,7 @@ steps:
     commands:
       - export GCP_PROJECT=`pulumi stack output gcpProject`
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
-      - chmod +x ./codefresh_add-k8s-cluster.sh && ./codefresh_add-k8s-cluster.sh
+      - ./codefresh_add_cluster.sh
 
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.
@@ -110,6 +115,10 @@ steps:
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
     commands:
+      # Remove the cluster from codefresh dashboard
+      - export GCP_PROJECT=`pulumi stack output gcpProject`
+      - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
+      - ./codefresh_remove_cluster.sh
       # Destroy the stack
       #### - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPELINE_NAME
       # When testing a new pipeline to replace an old pipeline, "new-" is put at the beginning of the project name.
