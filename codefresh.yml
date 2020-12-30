@@ -79,14 +79,16 @@ steps:
       # Deploy/update the stack
       - pulumi up --non-interactive --yes # --debug --logtostderr -v 9
 
-  # addCluster:
-  #   stage: deploy
-  #   title: Add K8s Cluster to Codefresh
-  #   fail_fast: false
-  #   image: pulumi/pulumi
-  #   working_directory: ${{prepareEnvironment}}
-  #   commands:
-  #     - codefresh completion
+  addCluster:
+    stage: deploy
+    title: Add K8s Cluster to Codefresh
+    fail_fast: false
+    image: pulumi/pulumi
+    working_directory: ${{prepareEnvironment}}
+    commands:
+      - export GCP_PROJECT=`pulumi stack output gcpProject`
+      - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
+      - chmod +x ./codefresh_add-k8s-cluster.sh && ./codefresh_add-k8s-cluster.sh
 
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.
