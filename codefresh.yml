@@ -79,6 +79,15 @@ steps:
       # Deploy/update the stack
       - pulumi up --non-interactive --yes # --debug --logtostderr -v 9
 
+  # addCluster:
+  #   stage: deploy
+  #   title: Add K8s Cluster to Codefresh
+  #   fail_fast: false
+  #   image: pulumi/pulumi
+  #   working_directory: ${{prepareEnvironment}}
+  #   commands:
+  #     - codefresh completion
+
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.
   # If approved, the stack will be destroyed.

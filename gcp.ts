@@ -69,6 +69,10 @@ users:
 `;
   });
 
+export const k8sName = k8sCluster.name
+export const k8sEndpoint = k8sCluster.endpoint
+export const k8sMasterAuth = k8sCluster.masterAuth
+
 // Export a Kubernetes provider instance that uses our cluster from above.
 export const k8sProvider = new k8s.Provider(projectName, {
   kubeconfig: kubeconfig,

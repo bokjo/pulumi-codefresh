@@ -4,7 +4,7 @@ import * as k8s from "@pulumi/kubernetes";
 import * as cluster from "./gcp";
 import { projectName } from "./config";
 
-export const kubeconfig = pulumi.secret(cluster.kubeconfig);
+export const kubeconfig = cluster.kubeconfig //pulumi.secret(cluster.kubeconfig);
 
 // Create a Kubernetes Namespace
 const namespace = new k8s.core.v1.Namespace(projectName, {
@@ -80,5 +80,9 @@ const nginxHelm = new k8s.helm.v3.Chart(`${projectName}-helm`, {
         // }
     ],
 }, { parent: namespace });
+
+export const k8sName = cluster.k8sName
+export const k8sEndpoint = cluster.k8sEndpoint
+export const k8sMasterAuth = cluster.k8sMasterAuth
 
 // ci/cd test
