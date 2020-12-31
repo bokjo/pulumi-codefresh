@@ -62,23 +62,28 @@ const nginxLb = new k8s.core.v1.Service(`${projectName}-nginx-lb`, {
     },
 }, { parent: deployment });
 const nginxLbIngress = nginxLb.status.loadBalancer.ingress[0]
+export const nginxLbIp = nginxLbIngress.apply(x => x.ip ?? x.hostname)
 
-// Deploy the bitnami/wordpress chart.
-const wpName = `${projectName}-wp`
-const wordpress = new k8s.helm.v3.Chart(wpName, {
-    version: "9.6.0",
-    chart: "wordpress",
+// Deploy the bitnami chart.
+const chartName = "nginx"
+const helmAppName = `${projectName}-website`
+const helmApp = new k8s.helm.v3.Chart(helmAppName, {
+    version: "8.2.3",
+    chart: chartName,
     fetchOpts: {
         repo: "https://charts.bitnami.com/bitnami",
     },
+    values: {
+        cloneStaticSiteFromGit: {
+            enabled: true,
+            repository: "https://github.com/MitchellGerdisch/simple_static_website.git",
+            branch: "main"
+        }
+    },
 }, { parent: namespace});
-
-// Get the status field from the wordpress service, and then grab a reference to the ingress field.
-const wpFrontend = wordpress.getResourceProperty("v1/Service", `${wpName}-wordpress`, "status");
-const wpIngress = wpFrontend.loadBalancer.ingress[0];
+const helmAppFrontend = helmApp.getResourceProperty("v1/Service", `${helmAppName}-${chartName}`, "status");
+const helmAppIngress = helmAppFrontend.loadBalancer.ingress[0];
+export const helmAppIp = helmAppIngress.apply(x => x.ip ?? x.hostname);
 
 export const clusterName = cluster.k8sName
 export const gcpProject = cluster.gcpProject
-// Export the public IPs for the simple Nginx LB and for the WP site
-export const nginxLbIp = nginxLbIngress.apply(x => x.ip ?? x.hostname)
-export const wpIp = wpIngress.apply(x => x.ip ?? x.hostname);

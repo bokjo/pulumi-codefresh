@@ -82,7 +82,7 @@ steps:
       # Select stack
       - pulumi stack select -c $PULUMI_STACK_PATH
       # Deploy/update the stack
-      - pulumi up --non-interactive --yes # --debug --logtostderr -v 9
+      - pulumi up --non-interactive --yes --skip-preview # --debug --logtostderr -v 9
 
   addCluster:
     stage: deploy
@@ -126,7 +126,7 @@ steps:
       - export CF_PIPE_NAME=`echo $CF_PIPELINE_NAME | sed 's/new-//g'`
       - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPE_NAME
       - pulumi stack select $PULUMI_STACK_PATH
-      - pulumi destroy -s $PULUMI_STACK_PATH -y --skip-preview
+      - pulumi destroy -s $PULUMI_STACK_PATH --non-interactive -y --skip-preview
 #
 #
 ####### SET UP NOTES ######
