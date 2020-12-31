@@ -68,8 +68,9 @@ export const nginxLbIp = nginxLbIngress.apply(x => x.ip ?? x.hostname)
 const chartName = "nginx"
 const helmAppName = `${projectName}-website`
 const helmApp = new k8s.helm.v3.Chart(helmAppName, {
-    version: "8.2.3",
     chart: chartName,
+    version: "8.2.3",
+    namespace: namespaceName,
     fetchOpts: {
         repo: "https://charts.bitnami.com/bitnami",
     },
