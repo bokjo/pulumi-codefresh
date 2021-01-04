@@ -82,9 +82,12 @@ const helmApp = new k8s.helm.v3.Chart(helmAppName, {
         }
     },
 }, { parent: namespace});
-const helmAppFrontend = helmApp.getResourceProperty("v1/Service", `${helmAppName}-${chartName}`, "status");
+
+const helmResourceName = pulumi.interpolate`${namespaceName}/${helmAppName}-${chartName}`
+const helmAppFrontend = helmResourceName.apply(name => helmApp.getResourceProperty("v1/Service", name, "status"))
 const helmAppIngress = helmAppFrontend.loadBalancer.ingress[0];
-export const helmAppIp = helmAppIngress.apply(x => x.ip ?? x.hostname);
+const helmAppIp = helmAppIngress.apply(x => x.ip ?? x.hostname)
+export const helmAppUrl = pulumi.interpolate`http://${helmAppIp}`
 
 export const clusterName = cluster.k8sName
 export const gcpProject = cluster.gcpProject
