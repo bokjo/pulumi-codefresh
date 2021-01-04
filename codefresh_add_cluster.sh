@@ -24,6 +24,16 @@ done
 ./codefresh_remove_cluster.sh
 
 echo "Adding new cluster \"$K8S_NAME\"..."
+
+
+echo "CF_API_KEY: $CF_API_KEY"
+echo "K8S_NAME: $K8S_NAME --- ${K8S_NAME}"
+echo "GCP_PROJECT: ${GCP_PROJECT}"
+echo "GKE_CLUSTER_NAME: ${GKE_CLUSTER_NAME}"
+echo "CF_API_HOST: $CF_API_HOST"
+
+
+
 # This is based on what the UI sends to the API when adding a GCP cluster from the integrations page.
 curl \ #-s --fail \
     -H "Authorization: $CF_API_KEY" \
