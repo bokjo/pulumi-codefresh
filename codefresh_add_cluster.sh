@@ -2,6 +2,8 @@
 
 CF_API_HOST="${CF_API_HOST:-https://g.codefresh.io}"
 
+echo "CF_API_HOST: $CF_API_HOST"
+
 REQUIRED_ENV_VARS=(
     "CF_API_KEY"
     "GKE_CLUSTER_NAME"
@@ -23,7 +25,7 @@ done
 
 echo "Adding new cluster \"$K8S_NAME\"..."
 # This is based on what the UI sends to the API when adding a GCP cluster from the integrations page.
-curl \ #-s --fail \
+curl -v \ #-s --fail \
     -H "Authorization: $CF_API_KEY" \
     -H "content-type: application/json;charset=UTF-8" \
     -d \
