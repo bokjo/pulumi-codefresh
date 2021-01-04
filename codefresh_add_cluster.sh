@@ -19,7 +19,7 @@ for VAR in ${REQUIRED_ENV_VARS[@]}; do
 done
 
 # Check if cluster already exists and delete if so
-./codefresh_remove_clsute.sh
+./codefresh_remove_cluster.sh
 
 echo "Adding new cluster \"$K8S_NAME\"..."
 # This is based on what the UI sends to the API when adding a GCP cluster from the integrations page.
