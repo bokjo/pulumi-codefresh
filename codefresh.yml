@@ -30,7 +30,7 @@ steps:
   prepareEnvironment:
     stage: prepare
     title: Prepare Environment
-    fail_fast: true
+    fail_fast: false # temporary
     image: pulumi/pulumi
     shell: bash
     working_directory: ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/${{REPO_DIR}} # Where is the pulumi code for this project found in the repo?
@@ -68,6 +68,8 @@ steps:
       - sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts
 
       # make the codefresh cluster add and remove scripts executable
+      - echo "before jq install"
+      - which jq
       - apt-get install -y jq
       - echo "after jq install"
       - which jq
