@@ -93,6 +93,7 @@ steps:
       - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
       - cf_export HELMAPP_ENDPOINT
 
+  # Adds K8s cluster to the Codefresh UI
   addCluster:
     stage: deploy
     title: Add k8s cluster to Codefresh
@@ -102,6 +103,7 @@ steps:
     commands:
       - ./codefresh_add_cluster.sh
 
+  # Creates/updates a Codefresh Environment for the "NGINX" app that was deployed by the Pulumi code.
   addNginxLbEnvironment:
     stage: deploy
     title: Add nginx environment to Codefresh
@@ -121,6 +123,7 @@ steps:
         - cluster: $FULL_CLUSTER_NAME
           namespace: $NAMESPACE_NAM
 
+  # Creates/updates a Codefresh Environment for the website app that was deployed by the Pulumi code.
   addHelmAppEnvironment:
     stage: deploy
     title: Add website environment to Codefresh
@@ -165,11 +168,7 @@ steps:
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
       - ./codefresh_remove_cluster.sh
       # Destroy the stack
-      #### - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPELINE_NAME
-      # When testing a new pipeline to replace an old pipeline, "new-" is put at the beginning of the project name.
-      # This next line removes it if it is there so the rest of the references work as expected.
-      - export CF_PIPE_NAME=`echo $CF_PIPELINE_NAME | sed 's/new-//g'`
-      - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPE_NAME
+      - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPELINE_NAME
       - pulumi stack select $PULUMI_STACK_PATH
       - pulumi destroy -s $PULUMI_STACK_PATH --non-interactive -y --skip-preview
 #
