@@ -68,9 +68,6 @@ steps:
       - sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts
 
       # make the codefresh cluster add and remove scripts executable
-      - echo "testing if jq found"
-      - jq
-      - echo "after testing if jq found"
       - sudo apt-get install -y jq
       - echo "after jq install"
       - which jq
