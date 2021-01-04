@@ -91,24 +91,52 @@ steps:
       - cf_export GCP_PROJECT
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
       - cf_export GKE_CLUSTER_NAME
+      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
+      - cf_export NAMESPACE_NAME
+      - ./codefresh_add_cluster.sh
+
+  addNginxLbEnvironment:
+    stage: deploy
+    title: Add nginx LB environment to Codefresh
+    fail_fast: false
+    image: pulumi/pulumi
+    working_directory: ${{prepareEnvironment}
+    commands:
       - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
       - cf_export FULL_CLUSTER_NAME
-      - ./codefresh_add_cluster.sh
       - export NGINX_LB_ENDPOINT=`pulumi stack output nbinxLbUrl`
       - cf_export NGINX_LB_ENDPOINT
       - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
       - cf_export HELMAPP_ENDPOINT
-      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
-      - cf_export NAMESPACE_NAME
     env:
       name: ${{CF_PIPELINE_NAME}}
       type: kubernetes
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
         - name: nginx-lb
-          url: http://34.68.82.100
-        - name: helm-app
-          url: http://34.121.92.125
+          url: $NGINX_LB_ENDPOINT
+      filters:
+        - cluster: $FULL_CLUSTER_NAME
+          namespace: $NAMESPACE_NAM
+
+  addHelmAppEnvironment:
+    stage: deploy
+    title: Add Helm App environment to Codefresh
+    fail_fast: false
+    image: pulumi/pulumi
+    working_directory: ${{prepareEnvironment}
+    commands:
+      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
+      - cf_export FULL_CLUSTER_NAME
+      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
+      - cf_export HELMAPP_ENDPOINT
+    env:
+      name: ${{CF_PIPELINE_NAME}}
+      type: kubernetes
+      change: ${{CF_COMMIT_MESSAGE}}
+      endpoints:
+        - name: website
+          url: $HELMAPP_ENDPOINT
       filters:
         - cluster: $FULL_CLUSTER_NAME
           namespace: $NAMESPACE_NAME
