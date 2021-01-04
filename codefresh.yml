@@ -79,6 +79,19 @@ steps:
       - pulumi stack select -c $PULUMI_STACK_PATH
       # Deploy/update the stack
       - pulumi up --non-interactive --yes --skip-preview # --debug --logtostderr -v 9
+      # Get outputs and pass to later steps
+      - export GCP_PROJECT=`pulumi stack output gcpProject`
+      - cf_export GCP_PROJECT
+      - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
+      - cf_export GKE_CLUSTER_NAME
+      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
+      - cf_export FULL_CLUSTER_NAME
+      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
+      - cf_export NAMESPACE_NAME
+      - export NGINX_LB_ENDPOINT=`pulumi stack output nginxLbUrl`
+      - cf_export NGINX_LB_ENDPOINT
+      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
+      - cf_export HELMAPP_ENDPOINT
 
   addCluster:
     stage: deploy
@@ -87,12 +100,6 @@ steps:
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
     commands:
-      - export GCP_PROJECT=`pulumi stack output gcpProject`
-      - cf_export GCP_PROJECT
-      - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
-      - cf_export GKE_CLUSTER_NAME
-      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
-      - cf_export NAMESPACE_NAME
       - ./codefresh_add_cluster.sh
 
   addNginxLbEnvironment:
@@ -101,13 +108,6 @@ steps:
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}
-    commands:
-      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
-      - cf_export FULL_CLUSTER_NAME
-      - export NGINX_LB_ENDPOINT=`pulumi stack output nbinxLbUrl`
-      - cf_export NGINX_LB_ENDPOINT
-      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
-      - cf_export HELMAPP_ENDPOINT
     env:
       name: ${{CF_PIPELINE_NAME}}-nginx-lb
       type: kubernetes
@@ -125,11 +125,6 @@ steps:
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}
-    commands:
-      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
-      - cf_export FULL_CLUSTER_NAME
-      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
-      - cf_export HELMAPP_ENDPOINT
     env:
       name: ${{CF_PIPELINE_NAME}}-website
       type: kubernetes

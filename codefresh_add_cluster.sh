@@ -2,8 +2,6 @@
 
 CF_API_HOST="${CF_API_HOST:-https://g.codefresh.io}"
 
-echo "CF_API_HOST: $CF_API_HOST"
-
 REQUIRED_ENV_VARS=(
     "CF_API_KEY"
     "GKE_CLUSTER_NAME"
