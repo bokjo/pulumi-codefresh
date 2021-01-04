@@ -34,4 +34,6 @@ if [[ "$EXISTING_CLUSTER_ID" != "" ]]; then
     "$CF_API_HOST/api/clusters/local/cluster/$EXISTING_CLUSTER_ID"
 fi
 
+sleep 30 
+
 echo
