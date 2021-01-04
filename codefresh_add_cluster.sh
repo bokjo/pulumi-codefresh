@@ -25,7 +25,7 @@ done
 
 echo "Adding new cluster \"$K8S_NAME\"..."
 # This is based on what the UI sends to the API when adding a GCP cluster from the integrations page.
-curl -v \ #-s --fail \
+curl \ #-s --fail \
     -H "Authorization: $CF_API_KEY" \
     -H "content-type: application/json;charset=UTF-8" \
     -d \

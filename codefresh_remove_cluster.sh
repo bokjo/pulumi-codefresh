@@ -2,6 +2,8 @@
 
 CF_API_HOST="${CF_API_HOST:-https://g.codefresh.io}"
 
+JQ="/usr/bin/jq"
+
 REQUIRED_ENV_VARS=(
     "CF_API_KEY"
     "GKE_CLUSTER_NAME"
@@ -22,7 +24,7 @@ echo "Checking if cluster \"$K8S_NAME\" already exists..."
 EXISTING_CLUSTER_ID=$(curl -s \
     -H "Authorization: $CF_API_KEY" \
     "$CF_API_HOST/api/clusters" | \
-    jq -r ".[] | select(. | .selector == \"$K8S_NAME\") | ._id")
+    JQ -r ".[] | select(. | .selector == \"$K8S_NAME\") | ._id")
 
 if [[ "$EXISTING_CLUSTER_ID" != "" ]]; then
     echo "Cluster already exists, deleting (id=$EXISTING_CLUSTER_ID)..."
