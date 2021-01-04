@@ -2,7 +2,8 @@
 
 CF_API_HOST="${CF_API_HOST:-https://g.codefresh.io}"
 
-JQ="/usr/bin/jq"
+# Make sure jq is installed
+apt-get install -y jq
 
 REQUIRED_ENV_VARS=(
     "CF_API_KEY"
