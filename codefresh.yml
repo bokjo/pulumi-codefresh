@@ -21,7 +21,7 @@ steps:
   # Get Pulumi application from Git
   cloneRepo:
     stage: prepare
-    title: Clone Repo
+    title: Clone repo
     type: git-clone
     repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
     revision: '${{CF_REVISION}}'
@@ -29,7 +29,7 @@ steps:
   # Prepare the environment
   prepareEnvironment:
     stage: prepare
-    title: Prepare Environment
+    title: Prepare environment
     fail_fast: true
     image: pulumi/pulumi
     shell: bash
@@ -70,7 +70,7 @@ steps:
   # Stand up the stack for this pipeline
   deployStack:
     stage: deploy
-    title: Deploy Pulumi Stack
+    title: Deploy Pulumi stack
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
@@ -95,7 +95,7 @@ steps:
 
   addCluster:
     stage: deploy
-    title: Add K8s Cluster to Codefresh
+    title: Add k8s cluster to Codefresh
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
@@ -104,10 +104,12 @@ steps:
 
   addNginxLbEnvironment:
     stage: deploy
-    title: Add nginx LB environment to Codefresh
+    title: Add nginx environment to Codefresh
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}
+    commands:
+      - echo "Adding nginx lb environment"
     env:
       name: ${{CF_PIPELINE_NAME}}-nginx-lb
       type: kubernetes
@@ -121,10 +123,12 @@ steps:
 
   addHelmAppEnvironment:
     stage: deploy
-    title: Add Helm App environment to Codefresh
+    title: Add website environment to Codefresh
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}
+    commands:
+      - echo "Adding website environment"
     env:
       name: ${{CF_PIPELINE_NAME}}-website
       type: kubernetes
@@ -151,7 +155,7 @@ steps:
   # Destroy the staging and production stacks once the clean up question is approved or never answered.
   destroyPulumiStacks:
     stage: cleanup
-    title: Destroy Demo Stacks
+    title: Destroy demo stack
     fail_fast: false
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
