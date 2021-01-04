@@ -111,16 +111,6 @@ steps:
         - cluster: ${{GKE_CLUSTER_NAME}}@${{GCP_PROJECT}}
           namespace: ${{NAMESPACE_NAME}}
 
-  addEnvironments:
-    stage: deploy
-    title: Add K8s Environments to Codefresh
-    fail_fast: false
-    image: pulumi/pulumi
-    working_directory: ${{prepareEnvironment}}
-    commands:
-    env:
-      name:
-
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.
   # If approved, the stack will be destroyed.
