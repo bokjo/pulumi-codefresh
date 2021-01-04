@@ -71,7 +71,6 @@ steps:
       - apt-get install -y jq
       - echo "after jq install"
       - which jq
-      - whence jq
       - jq
       - echo "after trying to see jq"
       - chmod +x ./codefresh_add_cluster.sh
