@@ -91,6 +91,8 @@ steps:
       - cf_export GCP_PROJECT
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
       - cf_export GKE_CLUSTER_NAME
+      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
+      - cf_export FULL_CLUSTER_NAME
       - ./codefresh_add_cluster.sh
       - export NGINX_LB_ENDPOINT=`pulumi stack output nbinxLbUrl`
       - cf_export NGINX_LB_ENDPOINT
@@ -108,8 +110,8 @@ steps:
         - name: helm-app
           url: http://34.121.92.125
       filters:
-        - cluster: ${{GKE_CLUSTER_NAME}}@${{GCP_PROJECT}}
-          namespace: ${{NAMESPACE_NAME}}
+        - cluster: $FULL_CLUSTER_NAME
+          namespace: $NAMESPACE_NAME
 
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.
