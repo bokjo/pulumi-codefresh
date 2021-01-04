@@ -109,7 +109,7 @@ steps:
       - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
       - cf_export HELMAPP_ENDPOINT
     env:
-      name: ${{CF_PIPELINE_NAME}}
+      name: ${{CF_PIPELINE_NAME}}-nginx-lb
       type: kubernetes
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
@@ -131,7 +131,7 @@ steps:
       - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
       - cf_export HELMAPP_ENDPOINT
     env:
-      name: ${{CF_PIPELINE_NAME}}
+      name: ${{CF_PIPELINE_NAME}}-website
       type: kubernetes
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
