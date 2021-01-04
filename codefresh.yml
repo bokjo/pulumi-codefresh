@@ -87,12 +87,39 @@ steps:
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
     commands:
-      # make the codefresh cluster add and remove scripts executable
-      # - chmod +x ./codefresh_add_cluster.sh
-      # - chmod +x ./codefresh_remove_cluster.sh
       - export GCP_PROJECT=`pulumi stack output gcpProject`
+      - cf_export GCP_PROJECT
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
+      - cf_export GKE_CLUSTER_NAME
       - ./codefresh_add_cluster.sh
+      - export NGINX_LB_ENDPOINT=`pulumi stack output nbinxLbUrl`
+      - cf_export NGINX_LB_ENDPOINT
+      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
+      - cf_export HELMAPP_ENDPOINT
+      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
+      - cf_export NAMESPACE_NAME
+    env:
+      name: ${{CF_PIPELINE_NAME}}
+      type: kubernetes
+      change: ${{CF_COMMIT_MESSAGE}}
+      endpoints:
+        - name: nginx-lb
+          url: ${{NGINX_LB_ENDPOINT}}
+        - name: helm-app
+          url: ${{HELMAPP_LB_ENDPOINT}}
+      filters:
+        - cluster: ${{GKE_CLUSTER_NAME}}@${{GCP_PROJECT}}
+          namespace: ${{NAMESPACE_NAME}}
+
+  addEnvironments:
+    stage: deploy
+    title: Add K8s Environments to Codefresh
+    fail_fast: false
+    image: pulumi/pulumi
+    working_directory: ${{prepareEnvironment}}
+    commands:
+    env:
+      name:
 
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.

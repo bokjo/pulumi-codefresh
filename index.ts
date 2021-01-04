@@ -62,7 +62,8 @@ const nginxLb = new k8s.core.v1.Service(`${projectName}-nginx-lb`, {
     },
 }, { parent: deployment });
 const nginxLbIngress = nginxLb.status.loadBalancer.ingress[0]
-export const nginxLbIp = nginxLbIngress.apply(x => x.ip ?? x.hostname)
+const nginxLbIp = nginxLbIngress.apply(x => x.ip ?? x.hostname)
+export const nginxLbUrl = pulumi.interpolate`http://${nginxLbIp}`
 
 // Deploy the bitnami chart.
 const chartName = "nginx"
@@ -82,7 +83,6 @@ const helmApp = new k8s.helm.v3.Chart(helmAppName, {
         }
     },
 }, { parent: namespace});
-
 const helmResourceName = pulumi.interpolate`${namespaceName}/${helmAppName}-${chartName}`
 const helmAppFrontend = helmResourceName.apply(name => helmApp.getResourceProperty("v1/Service", name, "status"))
 const helmAppIngress = helmAppFrontend.loadBalancer.ingress[0];
