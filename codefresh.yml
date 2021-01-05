@@ -49,10 +49,12 @@ steps:
       - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPELINE_NAME
       - cf_export PULUMI_STACK_PATH
 
-      # Get the Codefresh Project name.
+      # Get the Codefresh Project and Pipeline names.
       # Used for reference later on
       - export CF_PROJECT=`echo $CF_PIPELINE_NAME | cut -d"/" -f1`
       - cf_export CF_PROJECT
+      - export CF_PIPELINE=`echo $CF_PIPELINE_NAME | cut -d"/" -f2`
+      - cf_export CF_PIPELINE
 
       # Set up the base environment
       - npm install
@@ -113,7 +115,7 @@ steps:
     commands:
       - echo "Adding nginx lb environment"
     env:
-      name: ${{CF_PIPELINE_NAME}}-nginx-lb
+      name: ${{CF_PIPELINE}}-nginx-lb
       type: kubernetes
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
@@ -133,7 +135,7 @@ steps:
     commands:
       - echo "Adding website environment"
     env:
-      name: ${{CF_PIPELINE_NAME}}-website
+      name: ${{CF_PIPELINE}}-website
       type: kubernetes
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
