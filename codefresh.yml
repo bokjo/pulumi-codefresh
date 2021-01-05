@@ -118,10 +118,10 @@ steps:
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
         - name: nginx-lb
-          url: $NGINX_LB_ENDPOINT
+          url: ${{NGINX_LB_ENDPOINT}}
       filters:
-        - cluster: $FULL_CLUSTER_NAME
-          namespace: $NAMESPACE_NAME
+        - cluster: ${{FULL_CLUSTER_NAME}}
+          namespace: ${{NAMESPACE_NAME}}
 
   # Creates/updates a Codefresh Environment for the website app that was deployed by the Pulumi code.
   addHelmAppEnvironment:
@@ -138,10 +138,10 @@ steps:
       change: ${{CF_COMMIT_MESSAGE}}
       endpoints:
         - name: website
-          url: $HELMAPP_ENDPOINT
+          url: ${{HELMAPP_ENDPOINT}}
       filters:
-        - cluster: $FULL_CLUSTER_NAME
-          namespace: $NAMESPACE_NAME
+        - cluster: ${{FULL_CLUSTER_NAME}}
+          namespace: ${{NAMESPACE_NAME}}
 
   # Wait for a response to go and clean up the stack.
   # If denied, the stack will remain.
