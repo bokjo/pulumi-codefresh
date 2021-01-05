@@ -11,7 +11,7 @@
 # See comments at bottom of this file on how to set up Codefresh for this to work.
 #
 
-version: '1.0'
+version: "1.0"
 stages:
   - prepare
   - deploy
@@ -23,8 +23,8 @@ steps:
     stage: prepare
     title: Clone repo
     type: git-clone
-    repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
-    revision: '${{CF_REVISION}}'
+    repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
+    revision: "${{CF_REVISION}}"
     git: github
   # Prepare the environment
   prepareEnvironment:
@@ -121,7 +121,7 @@ steps:
           url: $NGINX_LB_ENDPOINT
       filters:
         - cluster: $FULL_CLUSTER_NAME
-          namespace: $NAMESPACE_NAM
+          namespace: $NAMESPACE_NAME
 
   # Creates/updates a Codefresh Environment for the website app that was deployed by the Pulumi code.
   addHelmAppEnvironment:
