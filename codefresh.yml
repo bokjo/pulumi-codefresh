@@ -1,11 +1,7 @@
 # This is the Codefresh pipeline workflow for the Customer Engineering demo projects.
 # When executed, it does the following:
-# 1) Runs "pulumi up" for the applicable Pulumi project based on the Codefresh project.
+# 1) Runs "pulumi up" for the applicable Pulumi project and stack based on the Codefresh project and pipeline.
 #    See the Setup notes at the end of this file for more information.
-# 3) Once the pulumi up has completed (or failed), the user is prompted in the Codefresh UI to destroy the given Pulumi stack.
-#    If the user select approve, the stack is destroyed.
-#    If the user selects deny, the stack is not destroyed.
-#    If the user does NOT select either, the stack will be automatically destroyed after an hour.
 #
 # CI/CD DEMO SET UP INSTRUCTIONS
 # See comments at bottom of this file on how to set up Codefresh for this to work.
@@ -144,35 +140,6 @@ steps:
       filters:
         - cluster: ${{FULL_CLUSTER_NAME}}
           namespace: ${{NAMESPACE_NAME}}
-
-  # Wait for a response to go and clean up the stack.
-  # If denied, the stack will remain.
-  # If approved, the stack will be destroyed.
-  # If no answer given, the stack will be destroyed after an hour.
-  waitToClean:
-    type: pending-approval
-    stage: cleanup
-    title: Destroy stack?
-    fail_fast: true
-    timeout: # force a clean up after "duration" hours.
-      duration: 1
-      finalState: approved
-  # Destroy the staging and production stacks once the clean up question is approved or never answered.
-  destroyPulumiStacks:
-    stage: cleanup
-    title: Destroy demo stack
-    fail_fast: false
-    image: pulumi/pulumi
-    working_directory: ${{prepareEnvironment}}
-    commands:
-      # Remove the cluster from codefresh dashboard
-      - export GCP_PROJECT=`pulumi stack output gcpProject`
-      - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
-      - ./codefresh_remove_cluster.sh
-      # Destroy the stack
-      - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPELINE_NAME
-      - pulumi stack select $PULUMI_STACK_PATH
-      - pulumi destroy -s $PULUMI_STACK_PATH --non-interactive -y --skip-preview
 #
 #
 ####### SET UP NOTES ######
