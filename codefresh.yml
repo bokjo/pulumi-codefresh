@@ -80,16 +80,16 @@ steps:
       # k8s cluster dashboard in Codefresh
       - pulumi up --non-interactive --yes --skip-preview # --debug --logtostderr -v 9
 
-      # Get outputs and pass to later steps
+      # Get outputs and cf_export them so they can be used in later steps
       - export GCP_PROJECT=`pulumi stack output gcpProject`
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
-      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
       - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
-      - export NGINX_LB_ENDPOINT=`pulumi stack output nginxLbUrl`
-      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
-      - cf_export NAMESPACE_NAME
       - cf_export FULL_CLUSTER_NAME
+      - export NAMESPACE_NAME=`pulumi stack output namespaceName`
+      - cf_export NAMESPACE_NAME
+      - export NGINX_LB_ENDPOINT=`pulumi stack output nginxLbUrl`
       - cf_export NGINX_LB_ENDPOINT
+      - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
       - cf_export HELMAPP_ENDPOINT
 
   # Creates/updates a Codefresh Environment for the "NGINX" app that was deployed by the Pulumi code.
