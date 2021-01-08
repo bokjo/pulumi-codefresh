@@ -27,12 +27,11 @@ steps:
     stage: prepare
     title: Prepare environment
     fail_fast: true
-    image: pulumi/pulumi
+    image: pulumi/pulumi # pulumi docker image
     shell: bash
     working_directory: ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/${{REPO_DIR}} # Where is the pulumi code for this project found in the repo?
     commands:
       # Set PULUMI_HOME so it uses the volume and not the default ~/.pulumi - this is especially important for K8s since destroys need to find the k8s provider stored in $PULUMI_HOME
-      # Be sure to set Codefresh Account Settings/Pipeline Settings to keep build environment for "Pending Approval" state.
       - export PULUMI_HOME=$CF_VOLUME_PATH
       - cf_export PULUMI_HOME
 
@@ -52,17 +51,16 @@ steps:
       - export CF_PIPELINE=`echo $CF_PIPELINE_NAME | cut -d"/" -f2`
       - cf_export CF_PIPELINE
 
-      # Set up the base environment
+      # Set up the node environment for Pulumi
       - npm install
 
-      # In the interest of keeping a single yml for all demos,
-      # this logic is used to handle having to set up the k8s cluster folder for k8s demos that leverage the cluster code.
-      # For the base cluster demo this code will run unnecessarily, but it allows for more flexibility later if we add other k8s demos.
-      - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/google_application_credentials.json
-      - echo $GOOGLE_CREDENTIALS > $GOOGLE_APPLICATION_CREDENTIALS
-      - cf_export GOOGLE_APPLICATION_CREDENTIALS
-      # This modifies gcp.ts to produce a kubeconfig that is compatible with a gcloud-free environment we are using in the Codefresh runner
-      # and it sets up node modules for the cluster code.
+      # These steps are required by Google to allow a Google service account to be used instead of a local gcloud call.
+      # The "GOOGLE_CREDENTIALS" are configured in Codefresh as an environment variable. See setup at the end of this file.
+      # - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/google_application_credentials.json
+      # - echo $GOOGLE_CREDENTIALS > $GOOGLE_APPLICATION_CREDENTIALS
+      # - cf_export GOOGLE_APPLICATION_CREDENTIALS
+      # This modifies gcp.ts to produce a kubeconfig that is compatible with a non-interactive, gcloud-free environment we are using in the Codefresh runner,
+      # while still allowing for workstation-based development and testing.
       - sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts
 
   # Stand up the stack for this pipeline
@@ -75,31 +73,22 @@ steps:
     commands:
       # Select stack
       - pulumi stack select -c $PULUMI_STACK_PATH
-      # Deploy/update the stack
+      # Deploy/update the stack which includes deploying:
+      # k8s cluster
+      # k8s services running nginx
+      # k8s cluster dashboard in Codefresh
       - pulumi up --non-interactive --yes --skip-preview # --debug --logtostderr -v 9
       # Get outputs and pass to later steps
       - export GCP_PROJECT=`pulumi stack output gcpProject`
-      - cf_export GCP_PROJECT
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
-      - cf_export GKE_CLUSTER_NAME
-      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
-      - cf_export FULL_CLUSTER_NAME
       - export NAMESPACE_NAME=`pulumi stack output namespaceName`
-      - cf_export NAMESPACE_NAME
+      - export FULL_CLUSTER_NAME="$GKE_CLUSTER_NAME@$GCP_PROJECT"
       - export NGINX_LB_ENDPOINT=`pulumi stack output nginxLbUrl`
-      - cf_export NGINX_LB_ENDPOINT
       - export HELMAPP_ENDPOINT=`pulumi stack output helmAppUrl`
+      - cf_export NAMESPACE_NAME
+      - cf_export FULL_CLUSTER_NAME
+      - cf_export NGINX_LB_ENDPOINT
       - cf_export HELMAPP_ENDPOINT
-
-  # Adds K8s cluster to the Codefresh UI
-  addCluster:
-    stage: deploy
-    title: Add k8s cluster to Codefresh
-    fail_fast: false
-    image: pulumi/pulumi
-    working_directory: ${{prepareEnvironment}}
-    commands:
-      - ./codefresh_add_cluster.sh
 
   # Creates/updates a Codefresh Environment for the "NGINX" app that was deployed by the Pulumi code.
   addNginxLbEnvironment:
@@ -154,12 +143,6 @@ steps:
 # - Advanced options - change to keep the volume on approval (build remains active)
 # Account Settings -> Shared Configuration
 # - Create a shared secret configuration context for the Cloud Credentials and store the required environment variables:
-#   - AWS_ACCESS_KEY_ID (see https://www.pulumi.com/docs/intro/cloud-providers/aws/setup/#environment-variables)
-#   - AWS_SECRET_ACCESS_KEY
-#   - ARM_CLIENT_ID (see https://www.pulumi.com/docs/intro/cloud-providers/azure/setup/#service-principal-authentication)
-#   - ARM_CLIENT_SECRET
-#   - ARM_TENANT_ID
-#   - ARM_SUBSCRIPTION_ID
 #   - GOOGLE_CREDENTIALS (see https://www.pulumi.com/docs/intro/cloud-providers/gcp/service-account/)
 # - There are two pipelines/stacks - Staging and Prod - they have their own PULUMI_ACCESS_TOKEN defined for them.
 #   So create two shared secret configuration contexts - one for each pipelinei/stack which.
