@@ -97,8 +97,9 @@ export const helmAppUrl = pulumi.interpolate`http://${helmAppIp}`
 export const clusterName = cluster.k8sName
 export const gcpProject = pulumi.interpolate`${cluster.gcpProject}` 
 
+// Create Codefresh K8s dashboard for the GKE cluster.
 const auth = codefreshApiKey.apply(key => setAuth(key))
-export const codefreshGkeDashboard = new CodefreshGke('gke-cf-dash', {
+const codefreshGkeDashboard = new CodefreshGke('gke-cf-dash', {
     clusterName: clusterName,
     gcpProject: gcpProject,
 })
