@@ -1,4 +1,4 @@
-// Implements a basic, simple dynamic provider for managing a GKE cluster on the Codefresh Kubernetes dashboard.
+// Implements a basic, simple dynamic provider for adding/removing GKE clusters to/from the Codefresh Kubernetes dashboard.
 // See: https://codefresh.io/docs/docs/deploy-to-kubernetes/manage-kubernetes/
 //
 
