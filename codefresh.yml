@@ -11,8 +11,6 @@ version: "1.0"
 stages:
   - prepare
   - deploy
-  - promote
-  - cleanup
 steps:
   # Get Pulumi application from Git
   cloneRepo:
@@ -71,13 +69,17 @@ steps:
     image: pulumi/pulumi
     working_directory: ${{prepareEnvironment}}
     commands:
-      # Select stack
+      # Select stack based on Codefresh project.
+      # If the stack doesn't exist, create it.
+      # This can be used for ephemeral dev/test environments that are created for each branch and then destroyed once merged.
       - pulumi stack select -c $PULUMI_STACK_PATH
+
       # Deploy/update the stack which includes deploying:
       # k8s cluster
       # k8s services running nginx
       # k8s cluster dashboard in Codefresh
       - pulumi up --non-interactive --yes --skip-preview # --debug --logtostderr -v 9
+
       # Get outputs and pass to later steps
       - export GCP_PROJECT=`pulumi stack output gcpProject`
       - export GKE_CLUSTER_NAME=`pulumi stack output clusterName`
