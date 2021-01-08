@@ -33,12 +33,14 @@ steps:
       - export PULUMI_HOME=$CF_VOLUME_PATH
       - cf_export PULUMI_HOME
 
-      # Create some environment variables for use in this step and subsequent steps
-      # Since we equate CF Project with Pulumi project and CF Pipeline with Pulumi stack, we can build variables used for Pulumi commands.
-      # CF_PIPELINE_NAME is of form <CF PROJECT>/<CF PIPELINE> which means it's of form <PULUMI PROJECT>/<PULUMI STACK>
+      # Codefresh Projects align well with Pulumi Projects and
+      # Codefresh Pipelines align well with Pulumi Stacks.
+      # So we can easily drive Pulumi updates based on the Codefresh pipeline being executed.
+      # Codefresh's CF_PIPELINE_NAME environment variable is of form <CF PROJECT>/<CF PIPELINE>
+      # which means it's also of the form <PULUMI PROJECT>/<PULUMI STACK>
       # A Pulumi full stack name is of the form <PULUMI ORGANIZATION>/<PULUMI PROJECT>/<PULUMI STACK>.
       # Therefore, Pulumi full stack is <PULUMI_ORG>/$CF_PIPELINE_NAME
-      # $PULUMI_ORG is an environment variable set up when configuring the Codefresh account (see below).
+      # $PULUMI_ORG is an environment variable set up when configuring the Codefresh account (see set up instructions at the end of the file).
       - export PULUMI_STACK_PATH=$PULUMI_ORG/$CF_PIPELINE_NAME
       - cf_export PULUMI_STACK_PATH
 
@@ -52,11 +54,12 @@ steps:
       # Set up the node environment for Pulumi
       - npm install
 
-      # These steps are required by Google to allow a Google service account to be used instead of a local gcloud call.
-      # The "GOOGLE_CREDENTIALS" are configured in Codefresh as an environment variable. See setup at the end of this file.
-      # - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/google_application_credentials.json
-      # - echo $GOOGLE_CREDENTIALS > $GOOGLE_APPLICATION_CREDENTIALS
-      # - cf_export GOOGLE_APPLICATION_CREDENTIALS
+      # Set up the GCP credentials file based on the "GOOGLE_CREDENTIALS" configured in Codefresh as an environment variable.
+      # See setup at the end of this file.
+      - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/google_application_credentials.json
+      - echo $GOOGLE_CREDENTIALS > $GOOGLE_APPLICATION_CREDENTIALS
+      - cf_export GOOGLE_APPLICATION_CREDENTIALS
+
       # This modifies gcp.ts to produce a kubeconfig that is compatible with a non-interactive, gcloud-free environment we are using in the Codefresh runner,
       # while still allowing for workstation-based development and testing.
       - sed -i -e '/ config:/{N;N;N;N;d;}' ./gcp.ts
