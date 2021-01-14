@@ -98,8 +98,10 @@ export const clusterName = cluster.k8sName
 export const gcpProject = pulumi.interpolate`${cluster.gcpProject}` 
 
 // Create Codefresh K8s dashboard for the GKE cluster.
+/*
 const auth = codefreshApiKey.apply(key => setAuth(key))
 const codefreshGkeDashboard = new CodefreshGke('gke-cf-dash', {
     clusterName: clusterName,
     gcpProject: gcpProject,
 })
+*/
