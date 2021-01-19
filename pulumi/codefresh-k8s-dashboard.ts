@@ -11,15 +11,15 @@ export function setAuth(token: string) {
     codefreshApiKey = token; 
 }
 
-export interface CodefreshGkeArgs {
+export interface CodefreshK8sDashboardArgs {
     clusterName: pulumi.Input<string>;
     gcpProject: pulumi.Input<string>;
 }
 
 const codefreshApiUrl  = "https://g.codefresh.io/api"
 
-const codefreshGkeProvider: pulumi.dynamic.ResourceProvider = {
-    async create(inputs: CodefreshGkeArgs) {
+const codefreshK8sDashboardProvider: pulumi.dynamic.ResourceProvider = {
+    async create(inputs: CodefreshK8sDashboardArgs) {
         const clusterName = inputs.clusterName
         const gcpProject = inputs.gcpProject
         const gkeName =`${clusterName}@${gcpProject}`
@@ -62,8 +62,8 @@ const codefreshGkeProvider: pulumi.dynamic.ResourceProvider = {
     },
 }
 
-export class CodefreshGke extends pulumi.dynamic.Resource {
-    constructor(name: string, args: CodefreshGkeArgs, opts?: pulumi.CustomResourceOptions) {
-        super(codefreshGkeProvider, name, args, opts);
+export class CodefreshK8sDashboard extends pulumi.dynamic.Resource {
+    constructor(name: string, args: CodefreshK8sDashboardArgs, opts?: pulumi.CustomResourceOptions) {
+        super(codefreshK8sDashboardProvider, name, args, opts);
     }
 }

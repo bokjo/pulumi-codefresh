@@ -1,20 +1,21 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
-import * as cluster from "./gcp";
 import { projectName, codefreshApiKey } from "./config";
-import { setAuth, CodefreshGke } from "./codefresh-dashboard-gke"
+import { K8sCluster } from "./gke";
+import { setAuth, CodefreshK8sDashboard } from "./codefresh-k8s-dashboard"
 
-// Instantiate a GKE cluster and 
-// "secrefy" the kubeconfig data from the cluster so it is not seen in local outputs or in the console.
-export const kubeconfig = pulumi.secret(cluster.kubeconfig);
+// Instantiate a GKE cluster 
+const k8sCluster = new K8sCluster(projectName, {
+    projectName: projectName
+})
 
 // Create a Kubernetes Namespace using Pulumi's native k8s provider.
 const namespace = new k8s.core.v1.Namespace(projectName, {
     metadata: {
         name: projectName,
     }
-}, { provider: cluster.k8sProvider });
+}, { dependsOn: k8sCluster, provider: k8sCluster.provider });
 export const namespaceName = namespace.metadata.name;
 
 // Create configmap
@@ -22,8 +23,8 @@ const configMap = new k8s.core.v1.ConfigMap(projectName, {
     metadata: {
         namespace: namespaceName,
     },
-    data: { storageBucketName: cluster.storageBucketName },
-}, { provider: cluster.k8sProvider });
+    data: { storageBucketName: k8sCluster.bucketName },
+}, { provider: k8sCluster.provider });
 
  // Create a NGINX Deployment using pulumi/k8s provider
 const appLabels = { appClass: projectName };
@@ -94,12 +95,12 @@ const helmAppIp = helmAppIngress.apply(x => x.ip ?? x.hostname)
 export const helmAppUrl = pulumi.interpolate`http://${helmAppIp}`
 
 // Output the cluster name and related GCP project
-export const clusterName = cluster.k8sName
-export const gcpProject = pulumi.interpolate`${cluster.gcpProject}` 
+export const clusterName = k8sCluster.cluster.name
+export const gcpProject = projectName
 
 // Create Codefresh K8s dashboard for the GKE cluster.
 const auth = codefreshApiKey.apply(key => setAuth(key))
-const codefreshGkeDashboard = new CodefreshGke('gke-cf-dash', {
+const codefreshGkeDashboard = new CodefreshK8sDashboard('gke-cf-dash', {
     clusterName: clusterName,
     gcpProject: gcpProject,
 })

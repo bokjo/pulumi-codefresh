@@ -5,8 +5,3 @@ export const codefreshApiKey = config.requireSecret("codefreshApiKey")
 
 export const projectName = pulumi.getProject();
 export const stackName = pulumi.getStack();
-
-export const baseTags = {
-    "cost-center": projectName,
-    "stack": stackName,
-};
