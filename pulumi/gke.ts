@@ -24,8 +24,8 @@ export class K8sCluster extends pulumi.ComponentResource {
     const clusterName = `${projectName}-k8s`
     const lastestMasterVersion = gcp.container.getEngineVersions();
 
-    const password = new random.RandomPassword(pwdName, { length: 16 }).result;
-    const gkeBucket = new gcp.storage.Bucket(bucketName);
+    const password = new random.RandomPassword(pwdName, { length: 16 }, {parent: this}).result;
+    const gkeBucket = new gcp.storage.Bucket(bucketName, {}, {parent: this});
     
     const gkeCluster = new gcp.container.Cluster(clusterName, {
       initialNodeCount: 1,
@@ -44,7 +44,7 @@ export class K8sCluster extends pulumi.ComponentResource {
       resourceLabels: {
           "cost-center": projectName,
       },
-    });
+    }, {parent: this});
     
     // Manufacture a GKE-style Kubeconfig. Note that this is slightly "different" because of the way GKE requires
     // gcloud to be in the picture for cluster authentication (rather than using the client cert/key directly).
@@ -89,8 +89,5 @@ users:
     this.cluster = gkeCluster;
     // return the kubeconfig as a secret
     this.kubeconfig = pulumi.secret(gkeKubeconfig);
-    
-    // Export a Kubernetes provider instance that uses our cluster from above.
-
   }
 }
