@@ -94,13 +94,11 @@ const helmAppIngress = helmAppFrontend.loadBalancer.ingress[0];
 const helmAppIp = helmAppIngress.apply(x => x.ip ?? x.hostname)
 export const helmAppUrl = pulumi.interpolate`http://${helmAppIp}`
 
-// Output the cluster name and related GCP project
-export const clusterName = k8sCluster.cluster.name
-export const gcpProject = projectName
 
 // Create Codefresh K8s dashboard for the GKE cluster.
 const auth = codefreshApiKey.apply(key => setAuth(key))
-const codefreshGkeDashboard = new CodefreshK8sDashboard('gke-cf-dash', {
-    clusterName: clusterName,
-    gcpProject: gcpProject,
+const codefreshDashboard = new CodefreshK8sDashboard('gke-cf-dash', {
+    clusterName: k8sCluster.cluster.name
 })
+// Output the cluster name
+export const fullClusterName = codefreshDashboard.fullClusterName

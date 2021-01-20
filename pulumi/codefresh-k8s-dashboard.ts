@@ -3,7 +3,9 @@
 //
 
 import * as pulumi from "@pulumi/pulumi";
+import { Input, Output } from "@pulumi/pulumi";
 import { CreateResult } from "@pulumi/pulumi/dynamic";
+import * as gcp from "@pulumi/gcp";
 import axios from 'axios';
 
 let codefreshApiKey = "noToken"
@@ -12,16 +14,19 @@ export function setAuth(token: string) {
 }
 
 export interface CodefreshK8sDashboardArgs {
-    clusterName: pulumi.Input<string>;
-    gcpProject: pulumi.Input<string>;
+    clusterName: Input<string>;
+}
+
+export interface CodefreshK8sDashboardProviderArgs {
+    clusterName: string;
+    fullClusterName: string;
 }
 
 const codefreshApiUrl  = "https://g.codefresh.io/api"
 
 const codefreshK8sDashboardProvider: pulumi.dynamic.ResourceProvider = {
-    async create(inputs: CodefreshK8sDashboardArgs) {
+    async create(inputs: CodefreshK8sDashboardProviderArgs): Promise<CreateResult> {
         const clusterName = inputs.clusterName
-        const gcpProject = inputs.gcpProject
         const gkeName =`${clusterName}@${gcpProject}`
         const url  = `${codefreshApiUrl}/clusters/gcloud/cluster`
 
@@ -48,7 +53,8 @@ const codefreshK8sDashboardProvider: pulumi.dynamic.ResourceProvider = {
         }, {
             headers: headers
         })
-        return { id: createResults.data._id.toString() };
+        inputs.fullClusterName = gkeName
+        return { id: createResults.data._id.toString(), outs: inputs};
     },
     async delete(id) {
         const deleteApiUrl = `${codefreshApiUrl}/clusters/local/cluster/${id}`
@@ -62,8 +68,10 @@ const codefreshK8sDashboardProvider: pulumi.dynamic.ResourceProvider = {
     },
 }
 
+const gcpProject = gcp.config.project 
 export class CodefreshK8sDashboard extends pulumi.dynamic.Resource {
+    public readonly fullClusterName: Output<string>
     constructor(name: string, args: CodefreshK8sDashboardArgs, opts?: pulumi.CustomResourceOptions) {
-        super(codefreshK8sDashboardProvider, name, args, opts);
+        super(codefreshK8sDashboardProvider, name, { fullClusterName: undefined, ...args}, opts);
     }
 }
