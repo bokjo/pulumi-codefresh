@@ -62,7 +62,7 @@ steps:
 
       # This modifies gcp.ts to produce a kubeconfig that is compatible with a non-interactive, gcloud-free environment we are using in the Codefresh runner,
       # while still allowing for workstation-based development and testing.
-      - sed -i -e '/ config:/{N;N;N;N;d;}' ./gke.ts
+      - sed -i -e '/ config:/{N;N;N;N;d;}' ./k8s-cluster.ts
 
   # Stand up the stack for this pipeline
   deployStack:
