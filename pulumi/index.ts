@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
 import { projectName, codefreshApiKey } from "./config";
-import { K8sCluster } from "./gke";
+import { K8sCluster } from "./k8s-cluster";
 import { setAuth, CodefreshK8sDashboard } from "./codefresh-k8s-dashboard"
 
 // Instantiate a GKE cluster 
@@ -102,3 +102,6 @@ const codefreshDashboard = new CodefreshK8sDashboard('gke-cf-dash', {
 })
 // Output the cluster name
 export const fullClusterName = codefreshDashboard.fullClusterName
+
+// Output the kubeconfig
+export const kubeConfig = k8sCluster.kubeconfig
